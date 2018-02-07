@@ -1,3 +1,4 @@
+import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
@@ -8,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Main {
@@ -16,31 +18,68 @@ public class Main {
 
 
     public static void main(String[] args) throws IOException {
+        Options options = new Options();
+        Option input = new Option("s", "source", true, "input DIR path");
 
+        input.setRequired(true);
+        options.addOption(input);
+
+        Option output = new Option("d", "dest", true, "output DIR path");
+        output.setRequired(true);
+        options.addOption(output);
+
+        Option force = new Option("f", "forceCopy", true, "Strart copying..");
+        force.setRequired(false);
+        options.addOption(force);
+
+        CommandLineParser parser = new DefaultParser();
+        HelpFormatter formatter = new HelpFormatter();
+        CommandLine cmd;
+
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+            formatter.printHelp("java -jar dogRename.jar", options);
+
+            System.exit(1);
+            return;
+        }
+
+
+        FROM = cmd.getOptionValue("source");
+        TO = cmd.getOptionValue("dest");
+        String forceCopy = cmd.getOptionValue("forceCopy");
+
+
+        String acc = "";
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
+/*
         System.out.println("Zadej umistění soubrů");
         FROM = reader.readLine();
         System.out.println("Kam kopírovat?");
         TO = reader.readLine();
-
+*/
         File[] files = new File(FROM).listFiles();
         Arrays.sort(files);
 
-        System.out.println("Zadaná složka obsahuje soubory:");
-        for (int i = 0; i < 5; i++) {
-            System.out.println(files[i].getName());
+        if(forceCopy == null) {
+            System.out.println("Zadaná složka obsahuje soubory:");
+            for (int i = 0; i < 5; i++) {
+                System.out.println(files[i].getName());
+            }
+            System.out.println("... a " + (files.length - 5) + " dalších...");
+            System.out.println("Začít kopírovat? Y/N");
+            forceCopy = reader.readLine();
         }
-        System.out.println("... a " + (files.length - 5) + " dalších...");
-        System.out.println("Začít kopírovat? YES/NO");
-        String acc = reader.readLine();
 
-        if (acc.equalsIgnoreCase("YES")) {
+        if (forceCopy.equalsIgnoreCase("Y")) {
             readFiles(files);
             System.out.println("Hotovo :-)");
 
         } else {
             System.out.println("Ukončuji...");
+            System.exit(1);
             return;
         }
     }
@@ -53,10 +92,12 @@ public class Main {
                 Calendar cal = Calendar.getInstance();
                 cal.setTimeInMillis(attr.lastAccessTime().toMillis());
                 String sep = "";
-                String formatedDateString = (cal.get(Calendar.YEAR) + sep + cal.get(Calendar.MONTH) + sep +
+                String formatedDateString; /*= (cal.get(Calendar.YEAR) + sep + cal.get(Calendar.MONTH) + sep +
                         cal.get(Calendar.DAY_OF_MONTH) + sep + cal.get(Calendar.HOUR_OF_DAY) + sep +
                         cal.get(Calendar.MINUTE) + sep + cal.get(Calendar.SECOND) + sep +
-                        cal.get(Calendar.MILLISECOND));
+                        cal.get(Calendar.MILLISECOND));*/
+                SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+                formatedDateString = df.format(cal.getTime());
                 String newName = formatName(files[i].getName(), formatedDateString);
 
                 System.out.println("Kopíruji [" + (i + 1) + "/" + files.length + "]  " + files[i].getName()
