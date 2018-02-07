@@ -53,7 +53,6 @@ public class Main {
 
 
         String acc = "";
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 /*
         System.out.println("Zadej umistění soubrů");
         FROM = reader.readLine();
@@ -64,6 +63,8 @@ public class Main {
         Arrays.sort(files);
 
         if(forceCopy == null) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
             System.out.println("Zadaná složka obsahuje soubory:");
             for (int i = 0; i < 5; i++) {
                 System.out.println(files[i].getName());
@@ -92,10 +93,7 @@ public class Main {
                 Calendar cal = Calendar.getInstance();
                 cal.setTimeInMillis(attr.lastAccessTime().toMillis());
                 String sep = "";
-                String formatedDateString; /*= (cal.get(Calendar.YEAR) + sep + cal.get(Calendar.MONTH) + sep +
-                        cal.get(Calendar.DAY_OF_MONTH) + sep + cal.get(Calendar.HOUR_OF_DAY) + sep +
-                        cal.get(Calendar.MINUTE) + sep + cal.get(Calendar.SECOND) + sep +
-                        cal.get(Calendar.MILLISECOND));*/
+                String formatedDateString;
                 SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSS");
                 formatedDateString = df.format(cal.getTime());
                 String newName = formatName(files[i].getName(), formatedDateString);
